@@ -1,0 +1,20 @@
+node_modules/
+test-results/
+*.log
+.DS_Store
+
+# Android build output and local settings
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+android/captures/
+android/.kotlin/
+
+# Never commit signing keys
+*.jks
+*.keystore
+android/keystore.properties

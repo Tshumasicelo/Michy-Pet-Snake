@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0e2219">
+  <meta name="description" content="Michy's Pet Snake: a 12-level arcade Snake adventure about a pet snake that escapes its terrarium.">
+  <title>Michy's Pet Snake</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 17l-5.9 3.3 1.3-6.5L2.5 9.3l6.6-.8z"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1.5a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5v-8A1.5 1.5 0 0 1 5.5 10zm2.5 0h5V7a2.5 2.5 0 0 0-5 0z"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.5"/><rect x="14" y="5" width="4" height="14" rx="1.5"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M15.5 4.5L8 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3zm0 4H6v1a2 2 0 0 0 1 1.7zm10 0v2.7A2 2 0 0 0 18 8V7z"/></symbol>
+    </defs>
+  </svg>
+
+  <div id="app" class="no-menu">
+    <!-- Opening cutscene -->
+    <canvas id="intro-canvas" class="intro-canvas" hidden></canvas>
+    <button id="intro-skip" class="skip-btn" type="button" hidden>Skip ›</button>
+
+    <!-- Main menu -->
+    <section id="screen-menu" class="screen menu" hidden>
+      <div class="logo">
+        <canvas id="logo-canvas" class="logo-art" width="220" height="120" aria-hidden="true"></canvas>
+        <h1 class="logo-title"><span class="logo-small">Michy's</span><span class="logo-big">Pet Snake</span></h1>
+        <p class="logo-tag">The great terrarium escape</p>
+      </div>
+      <nav class="menu-buttons">
+        <button class="btn primary big" type="button" data-action="continue">
+          <span>Play</span><small id="continue-label">Level 1</small>
+        </button>
+        <button class="btn" type="button" data-action="levels">Levels</button>
+        <button class="btn" type="button" data-action="classic">Terrarium Classic</button>
+        <div class="btn-row">
+          <button class="btn small" type="button" data-action="howto">How to play</button>
+          <button class="btn small" type="button" data-action="achievements">Trophies</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn small" type="button" data-action="settings">Settings</button>
+          <button class="btn small" type="button" data-action="intro">Watch intro</button>
+        </div>
+      </nav>
+      <p class="menu-foot"><svg class="star on"><use href="#i-star"/></svg> <span id="menu-stars">0</span> / 36 stars</p>
+    </section>
+
+    <!-- Level select -->
+    <section id="screen-levels" class="screen page" hidden>
+      <header class="page-head">
+        <button class="icon-btn" type="button" data-action="back" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+        <h2>Levels</h2>
+        <span class="page-head-note"><svg class="star on"><use href="#i-star"/></svg> <span id="levels-stars">0</span>/36</span>
+      </header>
+      <div id="level-grid" class="level-grid"></div>
+    </section>
+
+    <!-- How to play -->
+    <section id="screen-howto" class="screen page" hidden>
+      <header class="page-head">
+        <button class="icon-btn" type="button" data-action="back" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+        <h2>How to play</h2>
+      </header>
+      <div class="page-body">
+        <h3>Steering</h3>
+        <p><b>Swipe</b> anywhere on the board, tap the <b>arrow pad</b>, or use the <b>arrow keys</b> / <b>WASD</b>. You can keep swiping without lifting your finger. Pause with the pause button, <b>Space</b>, <b>P</b> or <b>Esc</b>.</p>
+        <p>The snake waits for your first direction at the start of each level, so take a moment to look around.</p>
+        <h3>Prey</h3>
+        <ul class="legend" id="legend-prey"></ul>
+        <h3>Power-ups</h3>
+        <ul class="legend" id="legend-power"></ul>
+        <h3>Watch out for</h3>
+        <ul class="legend" id="legend-hazard"></ul>
+        <h3>Stars</h3>
+        <p>Clear a level for one star. Clear it quickly for two or three: each level shows its target times before you start. Survival Run gives stars for score instead.</p>
+        <h3>Good to know</h3>
+        <p>You can move into the square your tail is leaving, because the tail moves out of the way first.</p>
+      </div>
+    </section>
+
+    <!-- Trophies -->
+    <section id="screen-achievements" class="screen page" hidden>
+      <header class="page-head">
+        <button class="icon-btn" type="button" data-action="back" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+        <h2>Trophies</h2>
+        <span class="page-head-note"><span id="trophy-count">0</span>/<span id="trophy-total">0</span></span>
+      </header>
+      <ul id="achievement-list" class="page-body trophy-list"></ul>
+    </section>
+
+    <!-- Settings -->
+    <section id="screen-settings" class="screen page" hidden>
+      <header class="page-head">
+        <button class="icon-btn" type="button" data-action="back" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+        <h2>Settings</h2>
+      </header>
+      <div class="page-body settings">
+        <div class="setting">
+          <span>Sound effects</span>
+          <button id="set-sound" class="toggle" type="button" role="switch" aria-checked="true"><span></span></button>
+        </div>
+        <div class="setting">
+          <span>Reduce motion<small>Skips the intro animation and screen shake</small></span>
+          <button id="set-motion" class="toggle" type="button" role="switch" aria-checked="false"><span></span></button>
+        </div>
+        <div class="setting column">
+          <span>Controls</span>
+          <div class="segmented" id="set-controls" role="radiogroup">
+            <button type="button" data-value="both" role="radio">Swipe + pad</button>
+            <button type="button" data-value="swipe" role="radio">Swipe only</button>
+            <button type="button" data-value="pad" role="radio">Pad only</button>
+          </div>
+        </div>
+        <div class="setting column">
+          <span>Snake colours</span>
+          <div class="skins" id="set-skins"></div>
+        </div>
+        <div class="setting column">
+          <span>Progress</span>
+          <button id="set-reset" class="btn danger small" type="button">Reset progress</button>
+          <small class="muted">Clears levels, stars, scores and trophies. Settings are kept.</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gameplay -->
+    <section id="screen-game" class="screen game" hidden>
+      <header class="hud">
+        <button id="btn-pause" class="icon-btn" type="button" aria-label="Pause"><svg><use href="#i-pause"/></svg></button>
+        <div class="hud-title">
+          <span id="hud-level" class="hud-level">Level 1</span>
+          <span id="hud-name" class="hud-name"></span>
+        </div>
+        <div class="hud-stats">
+          <div class="hud-chip"><small>Score</small><b id="hud-score">0</b></div>
+          <div class="hud-chip" id="hud-goal-chip"><small id="hud-goal-label">Goal</small><b id="hud-goal">0/0</b></div>
+          <div class="hud-chip" id="hud-time-chip" hidden><small>Time</small><b id="hud-time">0:00</b></div>
+        </div>
+      </header>
+      <div class="hud-effects" id="hud-effects"></div>
+      <div class="game-main">
+        <div id="play-area" class="play-area">
+          <div class="board-wrap" id="board-wrap">
+            <canvas id="board" class="board"></canvas>
+            <div id="banner" class="banner" hidden></div>
+          </div>
+        </div>
+        <div id="pad" class="pad" aria-label="Direction pad">
+          <button type="button" class="pad-btn up" data-dir="up" aria-label="Up"></button>
+          <button type="button" class="pad-btn left" data-dir="left" aria-label="Left"></button>
+          <button type="button" class="pad-btn right" data-dir="right" aria-label="Right"></button>
+          <button type="button" class="pad-btn down" data-dir="down" aria-label="Down"></button>
+        </div>
+      </div>
+      <div id="overlay" class="overlay" hidden>
+        <div id="overlay-card" class="card" role="dialog" aria-modal="true"></div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" hidden></div>
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+  </div>
+
+  <noscript><p class="noscript">Michy's Pet Snake needs JavaScript to run.</p></noscript>
+
+  <script src="js/levels.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/intro.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

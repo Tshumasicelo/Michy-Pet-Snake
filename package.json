@@ -1,0 +1,18 @@
+{
+  "name": "michys-pet-snake",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Michy's Pet Snake: a 12-level arcade Snake adventure, packaged for Android with a WebView.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "test:e2e": "node tests/e2e/smoke.js",
+    "serve": "node tests/e2e/serve-cli.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
