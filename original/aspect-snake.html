@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASPECTS SNAKE - Animated Snake</title>
+    <!-- Tailwind CSS for general styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for arcade look and feel */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as requested */
+            background-color: #1a202c; /* Dark background for arcade feel */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .game-container {
+            background-color: #2d3748; /* Slightly lighter dark background for the container */
+            border: 8px solid #4a5568; /* Thick border for arcade cabinet look */
+            border-radius: 20px; /* Rounded corners for the container */
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), /* Neon glow effect */
+                        0 0 60px rgba(0, 255, 255, 0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 90vw; /* Responsive width */
+            width: 500px; /* Max width for desktop */
+        }
+
+        /* Game Title Styling */
+        #gameTitle {
+            font-size: 2.75rem; /* Larger font for title */
+            font-weight: 900; /* Extra bold */
+            color: #00ffff; /* Bright cyan for neon effect */
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: neon-flicker 2s infinite alternate; /* Apply flicker animation */
+        }
+
+        @keyframes neon-flicker {
+            0%, 100% {
+                text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+                color: #00ffff;
+            }
+            50% {
+                text-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, 0 0 25px #00ffff;
+                color: #99ffff; /* Slightly brighter */
+            }
+            20%, 80% {
+                text-shadow: none;
+                color: #008888; /* Slightly dimmer, almost off */
+            }
+        }
+
+
+        canvas {
+            background-color: #000000; /* Black canvas background */
+            border: 4px solid #00ffff; /* Neon blue border for the game screen */
+            border-radius: 10px; /* Rounded corners for the canvas */
+            box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.5); /* Inner glow */
+            display: block;
+            touch-action: none; /* Prevent browser touch actions like scrolling/zooming */
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 10px;
+            color: #e2e8f0; /* Light text color */
+            font-size: 1.25rem; /* Larger font for info */
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ffff; /* Neon text shadow */
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent overlay */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #e2e8f0;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 10px; /* Match canvas border radius */
+            z-index: 10; /* Above canvas */
+            text-shadow: 0 0 10px #ff0000; /* Red glow for game over */
+        }
+
+        .game-button {
+            background: linear-gradient(145deg, #00c6ff, #0072ff); /* Blue gradient button */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 15px; /* More rounded button */
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3),
+                        0 0 10px rgba(0, 255, 255, 0.7); /* Button shadow and glow */
+            transition: all 0.3s ease;
+            text-transform: uppercase; /* Arcade style text */
+            letter-spacing: 1px;
+        }
+
+        .game-button:hover {
+            background: linear-gradient(145deg, #00e0ff, #0088ff);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4),
+                        0 0 15px rgba(0, 255, 255, 1);
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+
+        .game-button:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive controls for mobile */
+        .controls {
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left . right"
+                ". down .";
+            gap: 10px;
+            margin-top: 20px;
+            width: 200px; /* Fixed width for control pad */
+            height: 200px;
+            justify-items: center;
+            align-items: center;
+        }
+
+        .control-button {
+            background: linear-gradient(145deg, #ff4d4d, #cc0000); /* Red gradient for controls */
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%; /* Circular buttons */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3),
+                        0 0 8px rgba(255, 0, 0, 0.7); /* Red glow */
+            transition: all 0.2s ease;
+            user-select: none; /* Prevent text selection on tap */
+        }
+
+        .control-button:hover {
+            background: linear-gradient(145deg, #ff6666, #e60000);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4),
+                        0 0 12px rgba(255, 0, 0, 1);
+        }
+
+        .control-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-up { grid-area: up; }
+        .control-left { grid-area: left; }
+        .control-right { grid-area: right; }
+        .control-down { grid-area: down; }
+
+        @media (min-width: 768px) {
+            .controls {
+                display: none; /* Hide controls on larger screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 id="gameTitle">ASPECTS SNAKE</h1>
+        <div class="game-info">
+            <div id="score">Score: 0</div>
+            <div id="high-score">High Score: 0</div>
+        </div>
+        <div class="relative">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div id="gameOverlay" class="game-overlay hidden">
+                <span id="overlayMessage">GAME OVER!</span>
+                <button id="restartButton" class="game-button mt-5">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Mobile Touch Controls -->
+        <div class="controls">
+            <div class="control-button control-up" data-direction="up">▲</div>
+            <div class="control-button control-left" data-direction="left">◀</div>
+            <div class="control-button control-right" data-direction="right">▶</div>
+            <div class="control-button control-down" data-direction="down">▼</div>
+        </div>
+    </div>
+
+    <script>
+        // Get canvas and context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game constants
+        const GRID_SIZE = 20; // Number of cells in one dimension (e.g., 20x20 grid)
+        const TILE_SIZE = canvas.width / GRID_SIZE; // Size of each cell in pixels
+        const INITIAL_GAME_SPEED = 150; // Milliseconds per frame (lower is faster)
+        const SPEED_INCREMENT = 5; // How much to decrease interval time when snake eats food
+
+        // Game state variables
+        let snake = [];
+        let food = {};
+        let direction = 'right';
+        let score = 0;
+        let highScore = localStorage.getItem('snakeHighScore') || 0; // Load high score from local storage
+        let gameInterval;
+        let isGameOver = false;
+        let gameSpeed = INITIAL_GAME_SPEED; // Current game speed
+        let animationFrameId; // To manage requestAnimationFrame for continuous animation
+
+        // DOM elements
+        const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('high-score');
+        const gameOverlay = document.getElementById('gameOverlay');
+        const overlayMessage = document.getElementById('overlayMessage');
+        const restartButton = document.getElementById('restartButton');
+        const controlButtons = document.querySelectorAll('.control-button');
+
+        /**
+         * Initializes the game state.
+         * Sets up the initial snake position, score, and generates the first food.
+         */
+        function initGame() {
+            // Reset game state
+            snake = [
+                { x: 10, y: 10 }, // Head
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            direction = 'right';
+            score = 0;
+            gameSpeed = INITIAL_GAME_SPEED;
+            isGameOver = false;
+
+            // Update display
+            scoreDisplay.textContent = `Score: ${score}`;
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+            gameOverlay.classList.add('hidden'); // Hide game over overlay
+
+            generateFood(); // Place initial food
+            drawGame(); // Draw the initial game state immediately
+            startGameLoop(); // Start the game loop
+            // Start the animation loop for visual effects (like food pulse)
+            if (!animationFrameId) { // Only start if not already running
+                animateVisuals();
+            }
+        }
+
+        /**
+         * Starts the main game loop.
+         * Clears any existing interval and sets a new one based on current gameSpeed.
+         */
+        function startGameLoop() {
+            clearInterval(gameInterval); // Clear any previous game loop
+            gameInterval = setInterval(gameLoop, gameSpeed);
+        }
+
+        /**
+         * Draws a rounded rectangle on the canvas.
+         * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+         * @param {number} x - X coordinate of the top-left corner.
+         * @param {number} y - Y coordinate of the top-left corner.
+         * @param {number} width - Width of the rectangle.
+         * @param {number} height - Height of the rectangle.
+         * @param {number} radius - Radius for the rounded corners.
+         */
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.arcTo(x + width, y, x + width, y + radius, radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
+            ctx.lineTo(x + radius, y + height);
+            ctx.arcTo(x, y + height, x, y + height - radius, radius);
+            ctx.lineTo(x, y + radius);
+            ctx.arcTo(x, y, x + radius, y, radius);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        /**
+         * Draws a single snake segment.
+         * Handles drawing the head with eyes/fangs and body segments with patterns.
+         * @param {object} segment - The snake segment object {x, y}.
+         * @param {number} index - The index of the segment in the snake array.
+         * @param {string} currentDirection - The current direction of the snake.
+         */
+        function drawSnakePart(segment, index, currentDirection) {
+            const x = segment.x * TILE_SIZE;
+            const y = segment.y * TILE_SIZE;
+            const segmentRadius = TILE_SIZE / 3; // More rounded for body segments
+
+            // Snake body color (orange tones)
+            const bodyColor = '#FF9933'; // A vibrant orange
+            const bodyStrokeColor = '#CC6600'; // Darker orange for outline
+
+            ctx.strokeStyle = bodyStrokeColor;
+            ctx.lineWidth = 2; // Thicker outline for snake parts
+
+            // Draw snake head
+            if (index === 0) {
+                // Save current context state
+                ctx.save();
+
+                // Translate to the center of the head segment
+                ctx.translate(x + TILE_SIZE / 2, y + TILE_SIZE / 2);
+
+                // Rotate based on direction
+                let rotationAngle = 0;
+                if (currentDirection === 'up') rotationAngle = -Math.PI / 2;
+                else if (currentDirection === 'down') rotationAngle = Math.PI / 2;
+                else if (currentDirection === 'left') rotationAngle = Math.PI;
+                // 'right' is 0, no rotation needed
+
+                ctx.rotate(rotationAngle);
+
+                // Apply pulsating glow for the snake's head
+                const glowIntensity = Math.sin(Date.now() * 0.008) * 0.5 + 0.5;
+                ctx.shadowBlur = 15 * glowIntensity;
+                ctx.shadowColor = '#00ffff'; // Neon blue glow
+
+                // Draw the main head shape (slightly elongated/oval)
+                ctx.fillStyle = bodyColor;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, TILE_SIZE * 0.45, TILE_SIZE * 0.35, 0, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(TILE_SIZE * 0.2, -TILE_SIZE * 0.15, TILE_SIZE * 0.08, 0, 2 * Math.PI); // Right eye
+                ctx.arc(TILE_SIZE * 0.2, TILE_SIZE * 0.15, TILE_SIZE * 0.08, 0, 2 * Math.PI); // Left eye
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(TILE_SIZE * 0.22, -TILE_SIZE * 0.15, TILE_SIZE * 0.04, 0, 2 * Math.PI); // Right pupil
+                ctx.arc(TILE_SIZE * 0.22, TILE_SIZE * 0.15, TILE_SIZE * 0.04, 0, 2 * Math.PI); // Left pupil
+                ctx.fill();
+
+                // Draw fangs
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.moveTo(TILE_SIZE * 0.4, -TILE_SIZE * 0.1);
+                ctx.lineTo(TILE_SIZE * 0.5, -TILE_SIZE * 0.05);
+                ctx.lineTo(TILE_SIZE * 0.4, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(TILE_SIZE * 0.4, TILE_SIZE * 0.1);
+                ctx.lineTo(TILE_SIZE * 0.5, TILE_SIZE * 0.05);
+                ctx.lineTo(TILE_SIZE * 0.4, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Restore context to original state (undo translate and rotate)
+                ctx.restore();
+            } else {
+                // Draw snake body segments
+                ctx.fillStyle = bodyColor;
+                drawRoundedRect(ctx, x, y, TILE_SIZE, TILE_SIZE, segmentRadius);
+
+                // Add triangular patterns
+                ctx.fillStyle = '#FF6600'; // A slightly darker orange for patterns
+                const patternSize = TILE_SIZE * 0.3;
+                // Example: two triangles per segment
+                ctx.beginPath();
+                ctx.moveTo(x + TILE_SIZE * 0.2, y + TILE_SIZE * 0.2);
+                ctx.lineTo(x + TILE_SIZE * 0.5, y + TILE_SIZE * 0.1);
+                ctx.lineTo(x + TILE_SIZE * 0.4, y + TILE_SIZE * 0.4);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(x + TILE_SIZE * 0.8, y + TILE_SIZE * 0.8);
+                ctx.lineTo(x + TILE_SIZE * 0.5, y + TILE_SIZE * 0.9);
+                ctx.lineTo(x + TILE_SIZE * 0.6, y + TILE_SIZE * 0.6);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0; // Reset shadow after drawing each part
+        }
+
+        /**
+         * Draws the food item.
+         * @param {object} foodItem - The food object {x, y}.
+         */
+        function drawFood(foodItem) {
+            let x = foodItem.x * TILE_SIZE;
+            let y = foodItem.y * TILE_SIZE;
+            let width = TILE_SIZE;
+            let height = TILE_SIZE;
+            let radius = TILE_SIZE / 2; // Make food perfectly round
+
+            // Apply pulsating scale for food
+            const pulseScale = Math.sin(Date.now() * 0.005) * 0.05 + 1; // Oscillates between 0.95 and 1.05
+            width = TILE_SIZE * pulseScale;
+            height = TILE_SIZE * pulseScale;
+            x += (TILE_SIZE - width) / 2; // Center the scaled food
+            y += (TILE_SIZE - height) / 2;
+            radius = width / 2; // Radius adjusts with scale
+
+            ctx.fillStyle = '#ff0000'; // Red for food
+            ctx.strokeStyle = '#990000'; // Darker red for food outline
+            ctx.lineWidth = 2;
+
+            // Draw food as a circle (rounded rect with max radius)
+            ctx.beginPath();
+            ctx.arc(x + width / 2, y + height / 2, radius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.shadowBlur = 0; // Ensure shadow is reset
+        }
+
+        /**
+         * Draws all game elements on the canvas.
+         * Clears the canvas, then draws the snake and food.
+         */
+        function drawGame() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw snake
+            snake.forEach((segment, index) => {
+                drawSnakePart(segment, index, direction);
+            });
+
+            // Draw food
+            drawFood(food);
+        }
+
+        /**
+         * Generates a new random position for the food.
+         * Ensures food does not appear on top of the snake.
+         */
+        function generateFood() {
+            let newFoodX, newFoodY;
+            let collisionWithSnake;
+
+            do {
+                newFoodX = Math.floor(Math.random() * GRID_SIZE);
+                newFoodY = Math.floor(Math.random() * GRID_SIZE);
+                collisionWithSnake = false;
+                // Check if new food position overlaps with any snake segment
+                for (let i = 0; i < snake.length; i++) {
+                    if (snake[i].x === newFoodX && snake[i].y === newFoodY) {
+                        collisionWithSnake = true;
+                        break;
+                    }
+                }
+            } while (collisionWithSnake); // Keep generating until no collision
+
+            food = { x: newFoodX, y: newFoodY };
+        }
+
+        /**
+         * The main game loop function.
+         * Moves the snake, checks for collisions, handles food consumption, and updates display.
+         */
+        function gameLoop() {
+            if (isGameOver) return; // Stop loop if game is over
+
+            // Calculate new head position
+            const head = { x: snake[0].x, y: snake[0].y };
+
+            switch (direction) {
+                case 'up':
+                    head.y--;
+                    break;
+                case 'down':
+                    head.y++;
+                    break;
+                case 'left':
+                    head.x--;
+                    break;
+                case 'right':
+                    head.x++;
+                    break;
+            }
+
+            // Check for collisions
+            // 1. Wall collision
+            if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+                endGame('Wall Collision!');
+                return;
+            }
+
+            // 2. Self-collision
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    endGame('Self Collision!');
+                    return;
+                }
+            }
+
+            // Add new head to the snake
+            snake.unshift(head);
+
+            // Check if snake ate food
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                generateFood(); // Generate new food
+                // Increase speed (make game harder)
+                gameSpeed = Math.max(50, gameSpeed - SPEED_INCREMENT); // Minimum speed of 50ms
+                startGameLoop(); // Restart interval with new speed
+            } else {
+                snake.pop(); // Remove tail if no food was eaten
+            }
+
+            // drawGame(); // This is now handled by animateVisuals for smoother animations
+        }
+
+        /**
+         * Animation loop for visual effects (like food pulse, snake head glow).
+         * This runs continuously using requestAnimationFrame.
+         */
+        function animateVisuals() {
+            drawGame(); // Redraw the game elements with current animation states
+            animationFrameId = requestAnimationFrame(animateVisuals);
+        }
+
+        /**
+         * Ends the game and displays the game over screen.
+         * @param {string} message - The message to display on game over.
+         */
+        function endGame(message) {
+            isGameOver = true;
+            clearInterval(gameInterval); // Stop the game loop
+            cancelAnimationFrame(animationFrameId); // Stop the visual animation loop
+            animationFrameId = null; // Reset the animation frame ID
+
+            // Update high score if current score is higher
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('snakeHighScore', highScore); // Save high score
+                highScoreDisplay.textContent = `High Score: ${highScore}`;
+            }
+
+            overlayMessage.textContent = `GAME OVER! ${message} Your Score: ${score}`;
+            gameOverlay.classList.remove('hidden'); // Show game over overlay
+        }
+
+        // Event listener for keyboard input (arrow keys)
+        document.addEventListener('keydown', e => {
+            if (isGameOver) return; // Don't allow input if game is over
+
+            const newDirection = e.key.replace('Arrow', '').toLowerCase(); // 'up', 'down', 'left', 'right'
+
+            // Prevent immediate reverse direction
+            if (newDirection === 'up' && direction !== 'down') direction = newDirection;
+            else if (newDirection === 'down' && direction !== 'up') direction = newDirection;
+            else if (newDirection === 'left' && direction !== 'right') direction = newDirection;
+            else if (newDirection === 'right' && direction !== 'left') direction = newDirection;
+        });
+
+        // Event listener for touch controls
+        controlButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (isGameOver) return;
+                const newDirection = button.dataset.direction;
+
+                // Prevent immediate reverse direction
+                if (newDirection === 'up' && direction !== 'down') direction = newDirection;
+                else if (newDirection === 'down' && direction !== 'up') direction = newDirection;
+                else if (newDirection === 'left' && direction !== 'right') direction = newDirection;
+                else if (newDirection === 'right' && direction !== 'left') direction = newDirection;
+            });
+        });
+
+
+        // Event listener for restart button
+        restartButton.addEventListener('click', initGame);
+
+        // Initialize the game when the window loads
+        window.onload = initGame;
+        const foodTypes = [
+  { color: '#ff0000', points: 1, speed: 5 }, // regular
+  { color: '#00ff00', points: 3, speed: 0 }, // bonus points
+  { color: '#ffff00', points: 2, speed: -10 } // slows down
+];
+
+function generateFood() {
+    let newFood;
+    do {
+        newFood = {
+            x: Math.floor(Math.random() * GRID_SIZE),
+            y: Math.floor(Math.random() * GRID_SIZE),
+            ...foodTypes[Math.floor(Math.random() * foodTypes.length)]
+        };
+    } while (snake.some(s => s.x === newFood.x && s.y === newFood.y));
+    food = newFood;
+}
+    </script>
+</body>
+</html>
