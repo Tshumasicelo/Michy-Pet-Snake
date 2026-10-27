@@ -112,6 +112,15 @@ async function run() {
       await page.waitForTimeout(400);
       const s2 = await state(page);
       check(s2.head.x > s1.head.x, 'the on-screen pad steers');
+      // A drag across the board (pointer events, as a finger swipe produces).
+      const box = await page.locator('#board').boundingBox();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 - 60, { steps: 6 });
+      await page.mouse.up();
+      await page.waitForTimeout(450);
+      const s3 = await state(page);
+      check(s3.head.y < s2.head.y, 'swiping up on the board turns the snake up');
     } else {
       check(!(await page.isVisible('#pad')), 'desktop hides the touch pad');
     }

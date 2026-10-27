@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon: Michy's snake, drawn inside the adaptive-icon safe zone (scaled to 80%). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.8"
+        android:scaleY="0.8">
+        <!-- body outline, body and belly highlight -->
+        <path
+            android:pathData="M24,74 C34,54 48,84 60,64 S78,46 70,38"
+            android:strokeColor="#B95A00"
+            android:strokeWidth="17"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path
+            android:pathData="M24,74 C34,54 48,84 60,64 S78,46 70,38"
+            android:strokeColor="#FF9933"
+            android:strokeWidth="12"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path
+            android:pathData="M24,74 C34,54 48,84 60,64 S78,46 70,38"
+            android:strokeColor="#FFD08A"
+            android:strokeAlpha="0.6"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <!-- head -->
+        <path
+            android:pathData="M57,35 a15,13 0 1,0 30,0 a15,13 0 1,0 -30,0 Z"
+            android:fillColor="#FFA347"
+            android:strokeColor="#B95A00"
+            android:strokeWidth="3" />
+        <!-- eyes -->
+        <path
+            android:pathData="M63.5,29 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z M73.5,31 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 Z"
+            android:fillColor="#FFFFFF" />
+        <path
+            android:pathData="M66.8,29 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0 Z M76.8,31 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0 Z"
+            android:fillColor="#1B1B24" />
+        <!-- tongue -->
+        <path
+            android:pathData="M84,40 L92,42 M84,40 L91,45"
+            android:strokeColor="#E23B5A"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+    </group>
+</vector>
