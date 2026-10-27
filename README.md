@@ -40,11 +40,13 @@ Pause with the ⏸ button, Space, P or Esc.
 
 ## Build the Android app
 
-Open the **`android/`** folder in Android Studio and press **Run**, or build an APK file.
+**Just want the APK?** GitHub builds it automatically: **Actions → Android APK → newest run →
+Artifacts → michys-pet-snake-debug-apk**. Unzip it and install `app-debug.apk` on your phone.
+
+To build it yourself, open the **`android/`** folder in Android Studio and press **Run**.
 Full step-by-step guide, release signing and troubleshooting: **[docs/BUILD_APK.md](docs/BUILD_APK.md)**.
 
-> The Android project has not been compiled yet (see the [test report](docs/TESTING.md#not-verified)).
-> The first build in Android Studio is its first real test.
+> The APK builds on GitHub, but it hasn't been tested on a real phone yet (see the [test report](docs/TESTING.md#not-verified)).
 
 ## Project layout
 

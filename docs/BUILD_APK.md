@@ -3,17 +3,29 @@
 The game in `web/` is packaged into a small Android app (in `android/`) that shows it
 full-screen in a WebView. You build the APK on your own computer with Android Studio.
 
-> **Honest status:** the Android project was written and reviewed, but it could **not** be
-> compiled where it was written. That environment has no Android SDK, and Google's SDK
-> download servers were blocked. The first build on your machine is the real test. If
-> something fails, the [Troubleshooting](#troubleshooting) section covers the likely causes.
+> **Status:** the debug APK **builds successfully** on GitHub Actions (see below), but it has
+> not yet been installed and played on a real phone. If a build on your own machine fails,
+> the [Troubleshooting](#troubleshooting) section covers the likely causes.
+
+## The quickest way: download the APK GitHub built for you
+
+Every push to the repository builds the app on GitHub's servers (`.github/workflows/android.yml`).
+
+1. Open the repository's **Actions** tab and choose **Android APK**.
+2. Open the newest run with a green ✅.
+3. Under **Artifacts**, click **michys-pet-snake-debug-apk**. A `.zip` downloads (you must be signed in to GitHub).
+4. Unzip it to get `app-debug.apk`, copy it to your phone and tap it to install (see [Install the APK on a phone](#install-the-apk-on-a-phone)).
+
+Artifacts are kept for 90 days. You can also start a fresh build with **Run workflow** on the same page.
+
+Everything below is for building it yourself with Android Studio.
 
 | What | Value |
 |---|---|
 | App name | Michy's Pet Snake |
 | Package (application ID) | `com.michy.petsnake` |
 | Min Android version | 8.0 (API 26) |
-| Target / compile SDK | 36 / 37 |
+| Target / compile SDK | 36 / 36 |
 | Android Gradle Plugin | 9.4.0 |
 | Gradle | 9.6.0 (downloaded automatically by `gradlew`) |
 | Libraries | `androidx.activity:activity-ktx:1.13.0`, `androidx.webkit:webkit:1.18.0` |
@@ -43,7 +55,7 @@ project (not the top-level folder). Click **Trust Project** if asked.
 
 Android Studio now runs a *Gradle sync*. The first sync downloads Gradle, the Android
 Gradle Plugin and the libraries, so it can take several minutes. If it asks to install
-**Android SDK Platform 37** or build tools, accept.
+**Android SDK Platform 36** or build tools, accept.
 
 The app's `build.gradle.kts` includes `../../web` as the app's assets, so the game files
 are packaged straight from `web/`. There is nothing to copy by hand.
@@ -168,7 +180,7 @@ Progress, stars, trophies and settings are saved in the WebView's `localStorage`
 |---|---|
 | Sync says **"Plugin com.android.application version 9.4.0 not found"** | Your Android Studio is older than AGP 9.4. Update Android Studio, or open **Tools → AGP Upgrade Assistant** and let it pick the newest version your Studio supports. |
 | **"Dependency ... requires compileSdk X"** | Install that SDK platform (Studio offers a link) and set `compileSdk = X` in `android/app/build.gradle.kts`. |
-| **"SDK Platform 37 not installed"** | Click the install link, or open **Tools → SDK Manager** and tick Android API 37. |
+| **"SDK Platform 36 not installed"** | Click the install link, or open **Tools → SDK Manager** and tick Android API 36. |
 | **"Gradle requires JVM 17 or later"** | **Settings → Build, Execution, Deployment → Build Tools → Gradle → Gradle JDK**: choose the bundled JetBrains Runtime (17 or newer). |
 | Error mentioning **`org.jetbrains.kotlin.android`** | Do not add that plugin: AGP 9 has Kotlin built in. |
 | The app opens to a **blank screen or `net::ERR_CACHE_MISS`** | This should not happen, because the files are served from inside the app. If your device shows it anyway, add `<uses-permission android:name="android.permission.INTERNET" />` above `<application>` in `AndroidManifest.xml`. The game still never contacts the internet. |

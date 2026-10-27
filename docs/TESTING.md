@@ -60,6 +60,13 @@ It also checks that:
 (now side-by-side layouts), and the `AudioContext` was created before any user gesture
 (the browser printed a warning; now it is created on the first tap or key press).
 
+## Android build on GitHub Actions: passing
+
+`.github/workflows/android.yml` runs `./gradlew assembleDebug` on GitHub's Ubuntu runner
+(JDK 17, Android SDK platform 36, build tools 36.0.0) and uploads `app-debug.apk`.
+The first run failed because the runner has no `platforms;android-37` package, so
+`compileSdk` was lowered to 36. The second run succeeded in 1 min 31 s.
+
 ## Manual review (screenshots)
 
 Every level was screenshotted mid-game, along with the intro frames, menu, level select,
@@ -73,10 +80,10 @@ duplicated "Score" chip on score-goal levels, and "Eat 5 prey" on a mice-only le
 
 These could not be tested here and should be checked on a real device:
 
-- **The Android build.** The Android SDK was not available and Google's download
-  servers were blocked, so **no APK was compiled, installed or run**. The Gradle files,
-  manifest, resources and Kotlin were reviewed by hand, and all XML parses. The library
-  and plugin versions come from Google's release pages (see DESIGN.md §2).
+- **The APK on a real phone.** The debug APK compiles and packages on GitHub Actions
+  (`BUILD SUCCESSFUL`: Kotlin, manifest, resources, library compatibility checks), but it
+  has **not been installed or played on a device or emulator**. The release build
+  (R8 shrinking and signing) has not been run.
 - **WebView specifics:** back button, onPause/onResume, immersive mode, cutout padding,
   renderer-crash recovery, and loading without the INTERNET permission.
 - **Real touch hardware.** Swipes were simulated with pointer events.
