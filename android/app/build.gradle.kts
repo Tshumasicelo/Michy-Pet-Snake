@@ -13,7 +13,7 @@ val keystore = Properties().apply {
 
 android {
     namespace = "com.michy.petsnake"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.michy.petsnake"
